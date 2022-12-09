@@ -1,30 +1,44 @@
-import { throttle } from 'lodash';
-const STORAGE_KEY = 'feedback-form-state';
-const form = document.querySelector('.feedback-form');
-const email = document.querySelector('input');
-const message = document.querySelector('textarea');
+import throttle from 'lodash.throttle';
 
-form.addEventListener('input', throttle(updateLocalStorage, 500));
-form.addEventListener('submit', handSubmit);
+const form = document.querySelector('form');
+const email = document.querySelector('[name="email"]');
+const message = document.querySelector('[name="message"]');
 
-let formData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-parseLocalStorage();
-function updateLocalStorage(e) {
-  const fiendName = e.target.name;
-  formData[fiendName] = e.target.value;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+const Feedback_key = 'feedback-form-state';
+
+form.addEventListener('input', throttle(onLockalInput, 500));
+
+let formData = JSON.parse(localStorage.getItem(Feedback_key)) || {};
+
+onLocalStorage();
+
+form.addEventListener('submit', onSubmitClick);
+
+function onLockalInput(e) {
+  const targetName = e.target.name;
+
+  formData[targetName] = e.target.value;
+
+  localStorage.setItem(Feedback_key, JSON.stringify(formData));
 }
-function parseLocalStorage() {
-  const actualDate = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  if (actualDate) {
-    email.value = actualDate.email || '';
-    message.value = actualDate.message || '';
+
+function onLocalStorage(e) {
+  const currentData = JSON.parse(localStorage.getItem(Feedback_key));
+
+  if (currentData) {
+    email.value = currentData.email || '';
+    message.value = currentData.message || '';
   }
 }
-function handSubmit(e) {
-  e.preventDefaut();
-  const { email, message } = e.currentTarget.elemennts;
-  console.log({ email: email.value, message: message.value });
+
+function onSubmitClick(e) {
+  e.preventDefault();
+
+  if (email.value === '' || message.value === '') {
+    return;
+  }
+  console.log(formData);
+
   e.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(Feedback_key);
 }
